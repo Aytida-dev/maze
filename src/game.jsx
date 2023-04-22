@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db } from "./firebase";
 import { collection, getDocs, addDoc , updateDoc , doc } from "firebase/firestore";
 import "./game.css";
@@ -6,7 +6,7 @@ import Navbar from "./navbar";
 
 export default function Game({ board, reset }) {
   const [player, setPlayer] = useState([0, 0]);
-  const [docId, setDocId] = useState("");
+  const docId = useRef("");
 
   const playerCollectionRef = collection(db, "player");
 
@@ -17,7 +17,7 @@ export default function Game({ board, reset }) {
     });
   }
 
-  getPlayers();
+  // getPlayers();
   
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function Game({ board, reset }) {
       const docRef = await addDoc(playerCollectionRef, {
         player: player,
       });
-      setDocId(docRef.id);
+      docId.current=docRef.id;
       // console.log("Document written with ID: ", docRef.id);
     }
     addplayer();
@@ -33,8 +33,8 @@ export default function Game({ board, reset }) {
 
   useEffect(() => {
     async function updateplayer() {
-      if(docId === "") return;
-      const docRef = await updateDoc(doc(playerCollectionRef, docId), {
+      if(docId.current === "") return;
+      const docRef = await updateDoc(doc(playerCollectionRef, docId.current), {
         player: player,
       });
       // console.log("Document written with ID: ", docRef.id);
