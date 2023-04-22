@@ -7,14 +7,17 @@ import Navbar from "./navbar";
 export default function Game({ board, reset }) {
   const [player, setPlayer] = useState([0, 0]);
   const docId = useRef("");
+  const [allPlayers, setAllPlayers] = useState([]);
 
   const playerCollectionRef = collection(db, "player");
 
   async function getPlayers() {
     const playerCollection = await getDocs(playerCollectionRef);
+    const updatedcoordinates = [];
     playerCollection.forEach((doc) => {
-      console.log(doc.data().player);
+      updatedcoordinates.push(doc.data().player);
     });
+    setAllPlayers(updatedcoordinates);
   }
 
   // getPlayers();
