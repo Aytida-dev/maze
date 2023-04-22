@@ -42,9 +42,15 @@ export default function Game({ board, reset }) {
       });
       // console.log("Document written with ID: ", docRef.id);
     }
-
-    updateplayer();
+    async function updateandget() {
+      await updateplayer();
+      await getPlayers();
+    }
+    updateandget();
   }, [player]);
+
+  
+  
 
   function up() {
     if (player[0] > 0 && board[player[0]][player[1]].top) {
@@ -112,9 +118,21 @@ export default function Game({ board, reset }) {
                   key={j + i}
                 >
                   
-                  {player[0] === i && player[1] === j && (
+                  {/* {player[0] === i && player[1] === j && (
                     <div className="player"></div>
-                  )}
+                  )} */}
+
+                  {allPlayers.map((player, index) => {
+                    if (player[0] === i && player[1] === j) {
+                      return (
+                        <div
+                          className="player"
+                          style={{ backgroundColor: `hsl(${index * 30}, 100%, 50%)` }}
+                          key={index}
+                        ></div>
+                      );
+                    }
+                  })}
                 </div>
               ))}
             </div>
