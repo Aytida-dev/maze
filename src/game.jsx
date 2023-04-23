@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { db } from "./firebase";
-import { collection, getDocs, addDoc , updateDoc , doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 import "./game.css";
 import Navbar from "./navbar";
 
@@ -15,20 +21,20 @@ export default function Game({ board, reset }) {
     const playerCollection = await getDocs(playerCollectionRef);
     const updatedcoordinates = [];
     playerCollection.forEach((doc) => {
-      updatedcoordinates.push(doc.data().player);
+      updatedcoordinates.push({ id: doc.id, ...doc.data() });
+      // console.log(updatedcoordinates);
     });
     setAllPlayers(updatedcoordinates);
   }
 
   // getPlayers();
-  
 
   useEffect(() => {
     async function addplayer() {
       const docRef = await addDoc(playerCollectionRef, {
         player: player,
       });
-      docId.current=docRef.id;
+      docId.current = docRef.id;
       // console.log("Document written with ID: ", docRef.id);
     }
     addplayer();
@@ -36,7 +42,7 @@ export default function Game({ board, reset }) {
 
   useEffect(() => {
     async function updateplayer() {
-      if(docId.current === "") return;
+      if (docId.current === "") return;
       const docRef = await updateDoc(doc(playerCollectionRef, docId.current), {
         player: player,
       });
@@ -48,9 +54,6 @@ export default function Game({ board, reset }) {
     }
     updateandget();
   }, [player]);
-
-  
-  
 
   function up() {
     if (player[0] > 0 && board[player[0]][player[1]].top) {
@@ -117,22 +120,28 @@ export default function Game({ board, reset }) {
                   }`}
                   key={j + i}
                 >
-                  
-                  {/* {player[0] === i && player[1] === j && (
-                    <div className="player"></div>
-                  )} */}
+                  {player[0] === i && player[1] === j && (
+                    <div className="player">😀</div>
+                  )}
 
-                  {allPlayers.map((player, index) => {
-                    if (player[0] === i && player[1] === j) {
-                      return (
-                        <div
-                          className="player"
-                          style={{ backgroundColor: `hsl(${index * 30}, 100%, 50%)` }}
-                          key={index}
-                        ></div>
-                      );
-                    }
-                  })}
+                  {docId.current !== "" &&
+                    allPlayers.map((all, index) => {
+                      if (
+                        all.id !== docId.current &&
+                        all.player[0] === i &&
+                        all.player[1] === j
+                      ) {
+                        return (
+                          <div
+                            className="player"
+                            style={{
+                              backgroundColor: `hsl(${index * 30}, 100%, 50%)`,
+                            }}
+                            key={index}
+                          ></div>
+                        );
+                      }
+                    })}
                 </div>
               ))}
             </div>
