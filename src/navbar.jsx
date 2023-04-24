@@ -1,15 +1,28 @@
 import "./navbar.css";
 import { auth, provider } from "./firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function Navbar() {
-  const [issignin, setissignin] = useState(auth?.currentUser!==null);
+export default function Navbar({ online }) {
+  const [issignin, setissignin] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setissignin(true);
+        online(true);
+      } else {
+        setissignin(false);
+        online(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [online]);
 
   const signin = async () => {
     try {
       await signInWithPopup(auth, provider);
-      setissignin(true);
     } catch (err) {
       console.log(err);
     }
@@ -18,11 +31,11 @@ export default function Navbar() {
   const signout = async () => {
     try {
       await signOut(auth);
-      setissignin(false);
     } catch (err) {
       console.log(err);
     }
   };
+
   return (
     <div className="navbar">
       <div className="navbar_title">Maze Runner</div>
@@ -43,3 +56,4 @@ export default function Navbar() {
     </div>
   );
 }
+  

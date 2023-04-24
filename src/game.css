@@ -36,6 +36,12 @@
     align-items: center;
     position: absolute;
   }
+
+  .player img{
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
   
   .controls{
     display: grid;

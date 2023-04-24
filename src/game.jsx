@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import "./game.css";
 import Navbar from "./navbar";
+import img from "./p.jpg";
 
 export default function Game({ board, reset }) {
   const [player, setPlayer] = useState([0, 0]);
@@ -19,8 +20,8 @@ export default function Game({ board, reset }) {
   const playerCollectionRef = collection(db, "player");
 
   console.log(auth?.currentUser);
-
   async function getPlayers() {
+    if(!online) return;
     const playerCollection = await getDocs(playerCollectionRef);
     const updatedcoordinates = [];
     playerCollection.forEach((doc) => {
@@ -33,6 +34,7 @@ export default function Game({ board, reset }) {
   // getPlayers();
 
   useEffect(() => {
+    // if(!online) return;
     async function addplayer() {
       try {
         const docRef = await addDoc(playerCollectionRef, {
@@ -48,6 +50,7 @@ export default function Game({ board, reset }) {
   }, []);
 
   useEffect(() => {
+    if(!online) return;
     async function updateplayer() {
       if (docId.current === "") return;
       try {
@@ -120,7 +123,7 @@ export default function Game({ board, reset }) {
   }
   return (
     <>
-      <Navbar />
+      <Navbar online={(exp)=>setOnline(exp)}/>
       <div className="game">
         <div className="maze">
           {board.map((row, i) => (
@@ -136,10 +139,10 @@ export default function Game({ board, reset }) {
                   key={j + i}
                 >
                   {player[0] === i && player[1] === j && (
-                    <div className="player">😀</div>
+                    <div className="player"><img src={online ? auth?.currentUser?.photoURL : img } alt="" /></div>
                   )}
 
-                  {docId.current !== "" &&
+                  {online &&docId.current !== "" &&
                     allPlayers.map((all, index) => {
                       if (
                         all.id !== docId.current &&
