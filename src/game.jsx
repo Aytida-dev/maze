@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { db } from "./firebase";
+import { auth, db } from "./firebase";
 import {
   collection,
   getDocs,
@@ -14,8 +14,11 @@ export default function Game({ board, reset }) {
   const [player, setPlayer] = useState([0, 0]);
   const docId = useRef("");
   const [allPlayers, setAllPlayers] = useState([]);
+  const [online, setOnline] = useState(auth?.currentUser !== null);
 
   const playerCollectionRef = collection(db, "player");
+
+  console.log(auth?.currentUser);
 
   async function getPlayers() {
     const playerCollection = await getDocs(playerCollectionRef);
@@ -31,10 +34,14 @@ export default function Game({ board, reset }) {
 
   useEffect(() => {
     async function addplayer() {
-      const docRef = await addDoc(playerCollectionRef, {
-        player: player,
-      });
-      docId.current = docRef.id;
+      try {
+        const docRef = await addDoc(playerCollectionRef, {
+          player: player,
+        });
+        docId.current = docRef.id;
+      } catch (err) {
+        console.log(err);
+      }
       // console.log("Document written with ID: ", docRef.id);
     }
     addplayer();
@@ -43,14 +50,22 @@ export default function Game({ board, reset }) {
   useEffect(() => {
     async function updateplayer() {
       if (docId.current === "") return;
-      const docRef = await updateDoc(doc(playerCollectionRef, docId.current), {
-        player: player,
-      });
+      try {
+        await updateDoc(doc(playerCollectionRef, docId.current), {
+          player: player,
+        });
+      } catch (err) {
+        console.log(err);
+      }
       // console.log("Document written with ID: ", docRef.id);
     }
     async function updateandget() {
-      await updateplayer();
-      await getPlayers();
+      try {
+        await updateplayer();
+        await getPlayers();
+      } catch (err) {
+        console.log(err);
+      }
     }
     updateandget();
   }, [player]);

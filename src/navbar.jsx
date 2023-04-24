@@ -4,7 +4,7 @@ import { signInWithPopup, signOut } from "firebase/auth";
 import { useState } from "react";
 
 export default function Navbar() {
-  const [issignin, setissignin] = useState(false);
+  const [issignin, setissignin] = useState(auth?.currentUser!==null);
 
   const signin = async () => {
     try {
