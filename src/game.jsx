@@ -139,7 +139,7 @@ export default function Game({ board, reset }) {
                   key={j + i}
                 >
                   {player[0] === i && player[1] === j && (
-                    <div className="player"><img src={online ? auth?.currentUser?.photoURL : img } alt="" /></div>
+                    <div className="player"><img src={auth?.currentUser?.photoURL || img } alt="" /></div>
                   )}
 
                   {online &&docId.current !== "" &&
