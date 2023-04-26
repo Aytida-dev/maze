@@ -1,10 +1,12 @@
 import "./navbar.css";
-import { auth, provider } from "./firebase";
+import { auth, provider, db } from "./firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { useState, useEffect } from "react";
+// import { addDoc, collection, setDoc ,doc} from "firebase/firestore";
 
-export default function Navbar({ online }) {
+export default function Navbar({ online , room}) {
   const [issignin, setissignin] = useState(false);
+  const [roomName,setroomName] = useState("")
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -36,6 +38,11 @@ export default function Navbar({ online }) {
     }
   };
 
+  
+  
+  
+  
+
   return (
     <div className="navbar">
       <div className="navbar_title">Maze Runner</div>
@@ -49,6 +56,9 @@ export default function Navbar({ online }) {
             />
           </div>
         )}
+        <button className="createRoom" onClick={()=>room(roomName)}>Create room</button>
+        <input type="text" placeholder="Enter room name" value={roomName} onChange={(e)=>setroomName(e.target.value)}/>
+        <button className="joinRoom">Join room</button>
         <button className="sign" onClick={issignin ? signout : signin}>
           {issignin ? "Sign Out" : "Sign In"}
         </button>
@@ -56,4 +66,3 @@ export default function Navbar({ online }) {
     </div>
   );
 }
-  

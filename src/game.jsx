@@ -19,9 +19,20 @@ export default function Game({ board, reset }) {
 
   const playerCollectionRef = collection(db, "player");
 
-  console.log(auth?.currentUser);
+  const createroom = async (roomName) => {
+    // create a new collection in Firestore
+    const roomCollection = collection(db, roomName);
+
+    try {
+      await addDoc(roomCollection, { player1: 1 });
+      console.log("New room created!");
+    } catch (error) {
+      console.error("Error creating room: ", error);
+    }
+  };
+
   async function getPlayers() {
-    if(!online) return;
+    if (!online) return;
     const playerCollection = await getDocs(playerCollectionRef);
     const updatedcoordinates = [];
     playerCollection.forEach((doc) => {
@@ -50,7 +61,7 @@ export default function Game({ board, reset }) {
   }, []);
 
   useEffect(() => {
-    if(!online) return;
+    if (!online) return;
     async function updateplayer() {
       if (docId.current === "") return;
       try {
@@ -123,7 +134,10 @@ export default function Game({ board, reset }) {
   }
   return (
     <>
-      <Navbar online={(exp)=>setOnline(exp)}/>
+      <Navbar
+        online={(exp) => setOnline(exp)}
+        room={(name) => createroom(name)}
+      />
       <div className="game">
         <div className="maze">
           {board.map((row, i) => (
@@ -139,10 +153,13 @@ export default function Game({ board, reset }) {
                   key={j + i}
                 >
                   {player[0] === i && player[1] === j && (
-                    <div className="player"><img src={auth?.currentUser?.photoURL || img } alt="" /></div>
+                    <div className="player">
+                      <img src={auth?.currentUser?.photoURL || img} alt="" />
+                    </div>
                   )}
 
-                  {online &&docId.current !== "" &&
+                  {online &&
+                    docId.current !== "" &&
                     allPlayers.map((all, index) => {
                       if (
                         all.id !== docId.current &&
