@@ -1,8 +1,7 @@
 import "./navbar.css";
-import { auth, provider, db } from "./firebase";
+import { auth, provider} from "./firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { useState, useEffect } from "react";
-// import { addDoc, collection, setDoc ,doc} from "firebase/firestore";
 
 export default function Navbar({ online , room}) {
   const [issignin, setissignin] = useState(false);
