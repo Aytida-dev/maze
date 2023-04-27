@@ -15,26 +15,13 @@ export default function Game({ board, reset }) {
   const [player, setPlayer] = useState([0, 0]);
   const docId = useRef("");
   const [allPlayers, setAllPlayers] = useState([]);
-  // const [online, setOnline] = useState(auth?.currentUser !== null);
   const [roomCollection, setroomcollection] = useState(null);
 
-  // const playerCollectionRef = collection(db, "player");
-  // console.log(auth?.currentUser);
-
-  const createroom = async (roomName) => {
-    // create a new collection in Firestore
+  const createroom =  (roomName) => {
     setroomcollection(collection(db, roomName));
-
-    // try {
-    //   await addDoc(roomCollection, { player1: 1 });
-    //   console.log("New room created!");
-    // } catch (error) {
-    //   console.error("Error creating room: ", error);
-    // }
-    // addplayer();
   };
 
-  const joinroom = async (roomName) => {
+  const joinroom =  (roomName) => {
     setroomcollection(collection(db, roomName));
   };
 
@@ -44,14 +31,16 @@ export default function Game({ board, reset }) {
     const updatedcoordinates = [];
     playerCollection.forEach((doc) => {
       updatedcoordinates.push({ id: doc.id, ...doc.data() });
-      // console.log(updatedcoordinates);
     });
     setAllPlayers(updatedcoordinates);
   }
 
-  // getPlayers();
+  // useEffect(() => {
+  //   if (roomCollection === null) return;
+  //   console.log("useeffect");
+  //   getPlayers();
+  // },[roomCollection])
 
-  // if(!online) return;
   useEffect(() => {
     if (roomCollection === null) return;
 
@@ -64,10 +53,14 @@ export default function Game({ board, reset }) {
       } catch (err) {
         console.log(err);
       }
-      // console.log("Document written with ID: ", docRef.id);
     }
 
-    addplayer();
+    
+    async function addandget() {
+      await addplayer();
+      await getPlayers();
+    }
+    addandget();
   }, [roomCollection]);
 
   useEffect(() => {
@@ -81,7 +74,6 @@ export default function Game({ board, reset }) {
       } catch (err) {
         console.log(err);
       }
-      // console.log("Document written with ID: ", docRef.id);
     }
     async function updateandget() {
       try {
@@ -169,8 +161,8 @@ export default function Game({ board, reset }) {
                     </div>
                   )}
 
-                  {roomCollection === null &&
-                    docId.current !== "" &&
+                  { 
+                    docId.current !== "" && allPlayers.length>0 &&
                     allPlayers.map((all, index) => {
                       if (
                         all.id !== docId.current &&
@@ -187,7 +179,7 @@ export default function Game({ board, reset }) {
                           ></div>
                         );
                       }
-                    })}
+                    })} 
                 </div>
               ))}
             </div>
