@@ -15,25 +15,28 @@ export default function Game({ board, reset }) {
   const [player, setPlayer] = useState([0, 0]);
   const docId = useRef("");
   const [allPlayers, setAllPlayers] = useState([]);
-  const [online, setOnline] = useState(auth?.currentUser !== null);
+  // const [online, setOnline] = useState(auth?.currentUser !== null);
+  const [roomCollection, setroomcollection] = useState(null);
 
-  const playerCollectionRef = collection(db, "player");
+  // const playerCollectionRef = collection(db, "player");
+  // console.log(auth?.currentUser);
 
   const createroom = async (roomName) => {
     // create a new collection in Firestore
-    const roomCollection = collection(db, roomName);
+    setroomcollection(collection(db, roomName));
 
-    try {
-      await addDoc(roomCollection, { player1: 1 });
-      console.log("New room created!");
-    } catch (error) {
-      console.error("Error creating room: ", error);
-    }
+    // try {
+    //   await addDoc(roomCollection, { player1: 1 });
+    //   console.log("New room created!");
+    // } catch (error) {
+    //   console.error("Error creating room: ", error);
+    // }
+    // addplayer();
   };
 
   async function getPlayers() {
-    if (!online) return;
-    const playerCollection = await getDocs(playerCollectionRef);
+    if (roomCollection === null) return;
+    const playerCollection = await getDocs(roomCollection);
     const updatedcoordinates = [];
     playerCollection.forEach((doc) => {
       updatedcoordinates.push({ id: doc.id, ...doc.data() });
@@ -44,11 +47,13 @@ export default function Game({ board, reset }) {
 
   // getPlayers();
 
+  // if(!online) return;
   useEffect(() => {
-    // if(!online) return;
+    if (roomCollection === null) return;
+
     async function addplayer() {
       try {
-        const docRef = await addDoc(playerCollectionRef, {
+        const docRef = await addDoc(roomCollection, {
           player: player,
         });
         docId.current = docRef.id;
@@ -57,15 +62,18 @@ export default function Game({ board, reset }) {
       }
       // console.log("Document written with ID: ", docRef.id);
     }
+
     addplayer();
-  }, []);
+
+  },[roomCollection])
+  
 
   useEffect(() => {
-    if (!online) return;
+    if (roomCollection === null) return;
     async function updateplayer() {
       if (docId.current === "") return;
       try {
-        await updateDoc(doc(playerCollectionRef, docId.current), {
+        await updateDoc(doc(roomCollection, docId.current), {
           player: player,
         });
       } catch (err) {
@@ -158,7 +166,7 @@ export default function Game({ board, reset }) {
                     </div>
                   )}
 
-                  {online &&
+                  {roomCollection === null &&
                     docId.current !== "" &&
                     allPlayers.map((all, index) => {
                       if (
