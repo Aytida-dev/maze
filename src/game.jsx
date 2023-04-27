@@ -34,6 +34,10 @@ export default function Game({ board, reset }) {
     // addplayer();
   };
 
+  const joinroom = async (roomName) => {
+    setroomcollection(collection(db, roomName));
+  };
+
   async function getPlayers() {
     if (roomCollection === null) return;
     const playerCollection = await getDocs(roomCollection);
@@ -64,9 +68,7 @@ export default function Game({ board, reset }) {
     }
 
     addplayer();
-
-  },[roomCollection])
-  
+  }, [roomCollection]);
 
   useEffect(() => {
     if (roomCollection === null) return;
@@ -144,7 +146,8 @@ export default function Game({ board, reset }) {
     <>
       <Navbar
         online={(exp) => setOnline(exp)}
-        room={(name) => createroom(name)}
+        createroom={(name) => createroom(name)}
+        joinroom={(name) => joinroom(name)}
       />
       <div className="game">
         <div className="maze">

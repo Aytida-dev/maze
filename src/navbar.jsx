@@ -3,7 +3,7 @@ import { auth, provider } from "./firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { useState, useEffect } from "react";
 
-export default function Navbar({ room }) {
+export default function Navbar({ createroom ,joinroom }) {
   const [issignin, setissignin] = useState(false);
   const [roomName, setroomName] = useState("");
 
@@ -35,8 +35,13 @@ export default function Navbar({ room }) {
     }
   };
 
-  const createRoom = () => {
-    room(roomName);
+  const create_Room = () => {
+    createroom(roomName);
+    setroomName("");
+  }
+
+  const join_room = () => {
+    joinroom(roomName);
     setroomName("");
   }
 
@@ -56,7 +61,7 @@ export default function Navbar({ room }) {
         <button
           className="createRoom"
           disabled={roomName === ""}
-          onClick={createRoom}
+          onClick={create_Room}
         >
           Create room
         </button>
@@ -66,7 +71,7 @@ export default function Navbar({ room }) {
           value={roomName}
           onChange={(e) => setroomName(e.target.value)}
         />
-        <button className="joinRoom">Join room</button>
+        <button className="joinRoom" disabled={roomName===""} onClick={join_room}>Join room</button>
         <button className="sign" onClick={issignin ? signout : signin}>
           {issignin ? "Sign Out" : "Sign In"}
         </button>
