@@ -39,8 +39,6 @@ export default function Game({ board, reset }) {
   useEffect(() => {
     if (roomCollection === null) return;
 
-    if (roomCollection === null) return;
-
     const unsub = onSnapshot(roomCollection, (snapshot) => {
       const updatedcoordinates = [];
       snapshot.forEach((doc) => {
