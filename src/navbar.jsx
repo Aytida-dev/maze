@@ -1,6 +1,7 @@
 import "./navbar.css";
-import { auth, provider } from "./firebase";
+import { auth, provider, db } from "./firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
+import { collection , getDocs } from "firebase/firestore";
 import { useState, useEffect } from "react";
 
 export default function Navbar({ createroom ,joinroom }) {
@@ -35,15 +36,35 @@ export default function Navbar({ createroom ,joinroom }) {
     }
   };
 
-  const create_Room = () => {
+  const checkCollectionExists = async (collectionName) => {
+    // console.log(`Checking if collection ${collectionName} exists...`);
+    const querySnapshot = await getDocs(collection(db, collectionName));
+    const exists = !querySnapshot.empty;
+    // console.log(`Collection ${collectionName} exists: ${exists}`);
+    return exists;
+  };
+  
+
+  const create_Room =async () => {
+    if(await checkCollectionExists(roomName)){
+      console.log("room already exists");
+      return;
+    }
+    console.log(collection(db,roomName));
     createroom(roomName);
     setroomName("");
   }
 
-  const join_room = () => {
+  const join_room = async () => {
+    if (!await checkCollectionExists(roomName)) {
+      console.log("room doesn't exist");
+      return;
+    }
+  
     joinroom(roomName);
     setroomName("");
   }
+  
 
   return (
     <div className="navbar">

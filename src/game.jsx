@@ -6,6 +6,7 @@ import {
   addDoc,
   updateDoc,
   doc,
+  onSnapshot,
 } from "firebase/firestore";
 import "./game.css";
 import Navbar from "./navbar";
@@ -17,11 +18,11 @@ export default function Game({ board, reset }) {
   const [allPlayers, setAllPlayers] = useState([]);
   const [roomCollection, setroomcollection] = useState(null);
 
-  const createroom =  (roomName) => {
+  const createroom = (roomName) => {
     setroomcollection(collection(db, roomName));
   };
 
-  const joinroom =  (roomName) => {
+  const joinroom = (roomName) => {
     setroomcollection(collection(db, roomName));
   };
 
@@ -35,19 +36,24 @@ export default function Game({ board, reset }) {
     setAllPlayers(updatedcoordinates);
   }
 
-  // useEffect(() => {
-  //   if (roomCollection === null) return;
-  //   console.log("useeffect");
-  //   getPlayers();
-  // },[roomCollection])
-
   useEffect(() => {
     if (roomCollection === null) return;
+
+    if (roomCollection === null) return;
+
+    const unsub = onSnapshot(roomCollection, (snapshot) => {
+      const updatedcoordinates = [];
+      snapshot.forEach((doc) => {
+        updatedcoordinates.push({ id: doc.id, ...doc.data() });
+      });
+      setAllPlayers(updatedcoordinates);
+    });
 
     async function addplayer() {
       try {
         const docRef = await addDoc(roomCollection, {
           player: player,
+          user: auth.currentUser.photoURL,
         });
         docId.current = docRef.id;
       } catch (err) {
@@ -55,12 +61,13 @@ export default function Game({ board, reset }) {
       }
     }
 
-    
     async function addandget() {
       await addplayer();
       await getPlayers();
     }
     addandget();
+
+    return unsub;
   }, [roomCollection]);
 
   useEffect(() => {
@@ -161,8 +168,8 @@ export default function Game({ board, reset }) {
                     </div>
                   )}
 
-                  { 
-                    docId.current !== "" && allPlayers.length>0 &&
+                  {docId.current !== "" &&
+                    allPlayers.length > 0 &&
                     allPlayers.map((all, index) => {
                       if (
                         all.id !== docId.current &&
@@ -170,16 +177,12 @@ export default function Game({ board, reset }) {
                         all.player[1] === j
                       ) {
                         return (
-                          <div
-                            className="player"
-                            style={{
-                              backgroundColor: `hsl(${index * 30}, 100%, 50%)`,
-                            }}
-                            key={index}
-                          ></div>
+                          <div className="player" key={index}>
+                            <img src={all.user} alt="" />
+                          </div>
                         );
                       }
-                    })} 
+                    })}
                 </div>
               ))}
             </div>
