@@ -12,18 +12,26 @@ import "./game.css";
 import Navbar from "./navbar";
 import img from "./p.jpg";
 
-export default function Game({ board, reset }) {
+export default function Game({ board, reset, getBoard}) {
+  // const [board, setBoard] = useState(givenboard);
   const [player, setPlayer] = useState([0, 0]);
   const docId = useRef("");
+  const joining = useRef(false);
+  const creating = useRef(false);
   const [allPlayers, setAllPlayers] = useState([]);
   const [roomCollection, setroomcollection] = useState(null);
+  
 
-  const createroom = (roomName) => {
+  const createroom =  (roomName) => {
     setroomcollection(collection(db, roomName));
+    creating.current = true;
+    
   };
+  
 
   const joinroom = (roomName) => {
     setroomcollection(collection(db, roomName));
+    joining.current = true;
   };
 
   async function getPlayers() {
@@ -36,6 +44,8 @@ export default function Game({ board, reset }) {
     setAllPlayers(updatedcoordinates);
   }
 
+  
+
   useEffect(() => {
     if (roomCollection === null) return;
 
@@ -46,6 +56,17 @@ export default function Game({ board, reset }) {
       });
       setAllPlayers(updatedcoordinates);
     });
+
+    async function addBoard(){
+      if(creating.current === false) return;
+      try{
+        const boardRef = collection(db, roomCollection.id+"board");
+        await addDoc(boardRef, { board: board.flat() });
+      }
+      catch(err){
+        console.log(err);
+      }
+    }
 
     async function addplayer() {
       try {
@@ -58,8 +79,14 @@ export default function Game({ board, reset }) {
         console.log(err);
       }
     }
+    
+    if(joining.current === true){
+      getBoard(roomCollection)
+    }
+    
 
     async function addandget() {
+      await addBoard();
       await addplayer();
       await getPlayers();
     }
@@ -148,7 +175,7 @@ export default function Game({ board, reset }) {
       />
       <div className="game">
         <div className="maze">
-          {board.map((row, i) => (
+          {board && board.map((row, i) => (
             <div className="row" key={i}>
               {row.map((cell, j) => (
                 //add final classname to the end cell
