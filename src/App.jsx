@@ -1,13 +1,13 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db } from "./firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs , addDoc , onSnapshot} from "firebase/firestore";
 import Game from "./game";
 import "./game.css";
 
 function App() {
   const [reset, setReset] = useState(false);
   const joining = useRef(false);
-  // const {board} = useRef([]);
+  const savedCollection = useRef(null);
   let newboard2d = useRef([]);
   let board = Array(25)
     .fill()
@@ -87,6 +87,7 @@ function App() {
 
   async function getBoard(roomCollection) {
     joining.current = true;
+    savedCollection.current = roomCollection
     try {
       //get last document from board collection
       const boardCollection = await getDocs(
@@ -97,23 +98,70 @@ function App() {
       const newboard = lastDoc.data().board;
       //change board from flat to 2d
       // newboard2d = [];
+      console.log("getBoard");
       for (let i = 0; i < 25; i++) {
         newboard2d.current.push(newboard.slice(i * 25, i * 25 + 25));
       }
-      console.log(newboard2d);
+      
       setReset(!reset ? true : false);
+      console.log("getBoard2");
       
       
     } catch (err) {
       console.log(err);
     }
+    
+  }
+
+  async function addBoard(){
+    
+    try{
+      const boardRef = collection(db, savedCollection.current.id+"board");
+      await addDoc(boardRef, { board: board.flat() });
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
+
+  useEffect(() => {
+    if(!joining.current){
+      return
+    }
+    const boardSnap = onSnapshot(collection(db,savedCollection.current.id+"board"), (doc) => {
+      newboard2d.current = [];
+      doc.forEach((doc) => {
+        const newboard = doc.data().board;
+        for (let i = 0; i < 25; i++) {
+          newboard2d.current.push(newboard.slice(i * 25, i * 25 + 25));
+        }
+        console.log("onSnapshot2");
+      })
+      setReset(!reset ? true : false);
+      console.log("onSnapshot");
+    })
+
+    return boardSnap;
+  },[joining.current])
+
+  console.log("render");
+
+  function resetandgetBoard() {
+    if(!joining.current){
+      setReset(!reset ? true : false);
+      return;
+    }
+    joining.current = false;
+    newboard2d.current = [];
+    addBoard();
+    getBoard(savedCollection.current);
   }
 
   return (
     <div className="App">
       <Game
         board={joining.current? newboard2d.current : board}
-        reset={() => setReset(!reset ? true : false)}
+        reset={() => resetandgetBoard()}
         getBoard={(roomCollection) => getBoard(roomCollection)}
       />
     </div>
