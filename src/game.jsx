@@ -66,7 +66,7 @@ export default function Game({ board, reset, getBoard }) {
     addBoard();
   }
 
-  console.log("render1");
+  // console.log("render1");
 
   useEffect(() => {
     if (roomCollection === null) return;

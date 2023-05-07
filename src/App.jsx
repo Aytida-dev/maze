@@ -6,6 +6,7 @@ import "./game.css";
 
 function App() {
   const [reset, setReset] = useState(false);
+  const [key, setKey] = useState(0);
   const joining = useRef(false);
   const savedCollection = useRef(null);
   let newboard2d = useRef([]);
@@ -98,13 +99,13 @@ function App() {
       const newboard = lastDoc.data().board;
       //change board from flat to 2d
       // newboard2d = [];
-      console.log("getBoard");
+      // console.log("getBoard");
       for (let i = 0; i < 25; i++) {
         newboard2d.current.push(newboard.slice(i * 25, i * 25 + 25));
       }
       
       setReset(!reset ? true : false);
-      console.log("getBoard2");
+      // console.log("getBoard2");
       
       
     } catch (err) {
@@ -135,16 +136,16 @@ function App() {
         for (let i = 0; i < 25; i++) {
           newboard2d.current.push(newboard.slice(i * 25, i * 25 + 25));
         }
-        console.log("onSnapshot2");
+        // console.log("onSnapshot2");
       })
-      setReset(!reset ? true : false);
-      console.log("onSnapshot");
+      setKey((prev) => (prev + 1));
+      // console.log("onSnapshot");
     })
 
     return boardSnap;
   },[joining.current])
 
-  console.log("render");
+  // console.log("render");
 
   function resetandgetBoard() {
     if(!joining.current){
